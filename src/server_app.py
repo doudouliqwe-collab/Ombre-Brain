@@ -22,6 +22,7 @@ from ombrebrain.security.public_origin import (
     configured_public_origin,
     normalize_public_origin,
 )
+from ombrebrain.security.mcp_partition import MCPPartitionMiddleware
 from utils import parse_bool
 from web.request_limits import (
     MCPRequestBodyLimitMiddleware,
@@ -719,6 +720,10 @@ def build_http_app(
             MCPJSONAcceptShim,
             path_matcher=mcp_path_matcher,
         )
+    app.add_middleware(
+        MCPPartitionMiddleware,
+        path_matcher=mcp_path_matcher,
+    )
     app.add_middleware(
         MCPAuthMiddleware,
         auth_required=settings.auth_required,

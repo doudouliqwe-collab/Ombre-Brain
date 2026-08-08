@@ -28,6 +28,8 @@ pulse 顺带放在这里：它是系统状态 + 桶清单的总览，调用频�
 
 from typing import Optional
 
+from ombrebrain.security.mcp_partition import current_partition_owner
+
 from .. import _runtime as rt
 from .._common import check_metadata_size
 
@@ -88,8 +90,13 @@ async def pulse(include_archive: Optional[bool] = False) -> str:
     # 反之孤儿 embedding 不影响检索，但占空间。两边一旦对不上就在 pulse 里告警，
     # 让她/他/模型立刻知道「数对不上是真 bug」而不是错觉。
     try:
+        partitioned = bool(current_partition_owner())
         ee = getattr(rt, "embedding_engine", None)
-        outbox = getattr(rt.bucket_mgr, "embedding_outbox", None)
+        outbox = (
+            None
+            if partitioned
+            else getattr(rt.bucket_mgr, "embedding_outbox", None)
+        )
         pending_ids = outbox.pending_ids() if outbox is not None else set()
         if outbox is not None:
             queue_state = outbox.status()
@@ -104,7 +111,7 @@ async def pulse(include_archive: Optional[bool] = False) -> str:
                 )
                 + "\n"
             )
-        if ee and getattr(ee, "enabled", False):
+        if not partitioned and ee and getattr(ee, "enabled", False):
             disk_buckets = await rt.bucket_mgr.list_all(include_archive=True)
             disk_ids = {
                 b["id"] for b in disk_buckets
