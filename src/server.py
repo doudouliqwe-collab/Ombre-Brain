@@ -49,6 +49,7 @@ from embedding_engine import EmbeddingEngine
 from ombrebrain.storage.embedding_outbox import EmbeddingOutbox
 from ombrebrain.storage.source_store import SourceStore
 from ombrebrain.security.deployment_profile import enforce_mcp_network_guard
+from ombrebrain.security.mcp_partition import PartitionedBucketManager
 from import_memory import ImportEngine
 from migrate_engine import MigrateEngine
 from utils import get_version, load_config, setup_logging
@@ -590,7 +591,7 @@ async def _with_notice(coro: Awaitable[str], op: str = "", args: dict | None = N
 # =============================================================
 _tools_runtime.init(
     config=config,
-    bucket_mgr=bucket_mgr,
+    bucket_mgr=PartitionedBucketManager(bucket_mgr),
     dehydrator=dehydrator,
     decay_engine=decay_engine,
     embedding_engine=embedding_engine,
