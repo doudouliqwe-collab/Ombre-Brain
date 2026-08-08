@@ -27,6 +27,11 @@ services:
         sync: false          # e.g. https://generativelanguage.googleapis.com/v1beta/openai/
       - key: OMBRE_COMPRESS_MODEL
         sync: false          # e.g. gemini-2.5-flash
+      # Must match the Cloudflare Worker OMBRE_PARTITION_GATEWAY_SECRET.
+      - key: OMBRE_PARTITION_GATEWAY_SECRET
+        sync: false
+      - key: OMBRE_PARTITION_OWNERS
+        value: gege,claude,deepseek
       # Render services are public as soon as they boot.  Generate a secret at
       # provisioning time so an anonymous first request cannot claim setup.
       - key: OMBRE_DASHBOARD_PASSWORD
